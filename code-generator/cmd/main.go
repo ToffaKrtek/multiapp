@@ -7,6 +7,7 @@ import (
 	"github.com/ToffaKrtek/multiapp/code-generator/internal/service"
 	"github.com/ToffaKrtek/multiapp/code-generator/pb"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/reflection"
 )
 
 func main() {
@@ -16,6 +17,9 @@ func main() {
 	}
 
 	grpcServer := grpc.NewServer()
+
+	reflection.Register(grpcServer)
+
 	pb.RegisterCodeGeneratorServer(grpcServer, &service.CodeGeneratorServer{})
 
 	log.Println("gRPC server running on :8080")
