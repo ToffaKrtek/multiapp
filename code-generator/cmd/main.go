@@ -1,35 +1,25 @@
 package main
 
 import (
-	"context"
-	"time"
+	"log"
+	"net"
 
-	"github.com/ToffaKrtek/multiapp/code-generator/internal/code"
-	"go-micro.dev/v5"
+	"github.com/ToffaKrtek/multiapp/code-generator/internal/service"
+	"github.com/ToffaKrtek/multiapp/code-generator/pb"
+	"google.golang.org/grpc"
 )
 
-type Request struct{}
-
-type Response struct {
-	Code   string `json:"code"`
-	Expire string `json:"expire"`
-}
-
-type Generate struct{}
-
-func (g *Generate) Code(ctx context.Context, req *Request, resp *Response) error {
-	code := code.Generate()
-	resp.Code = string(code.Runes)
-	resp.Expire = code.ExpireDate.Format(time.RFC1123)
-	return nil
-}
-
 func main() {
-	service := micro.NewService(
-		micro.Name("code-generator"),
-		micro.Address(":8080"),
-	)
-	service.Init()
-	service.Handle(new(Generate))
-	service.Run()
+	lis, err := net.Listen("tcp", ":8080")
+	if err != nil {
+		log.Fatalf("failed to listen: %v", err)
+	}
+
+	grpcServer := grpc.NewServer()
+	pb.RegisterCodeGeneratorServer(grpcServer, &service.CodeGeneratorServer{})
+
+	log.Println("gRPC server running on :8080")
+	if err := grpcServer.Serve(lis); err != nil {
+		log.Fatalf("failed to serve: %v", err)
+	}
 }

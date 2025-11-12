@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+package codegenerator;
+
+option go_package = "./pb";
+
+service CodeGenerator {
+  rpc GenerateCode(Request) returns (Response);
+}
+
+message Request {}
+
+message Response {
+  string code = 1;
+  string expire = 2;
+}
