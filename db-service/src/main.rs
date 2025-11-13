@@ -1,3 +1,6 @@
+mod common;
+mod env;
+
 fn main() {
-    println!("Hello, world!");
+    let config = env::config();
 }
